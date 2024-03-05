@@ -1,4 +1,4 @@
-#include <iostream>
+#include <Poco/Logger.h>
 
 #include "WmiWrapper.h"
 #include "../Monitors/SystemInfo.h"
@@ -16,10 +16,10 @@ WmiWrapper::~WmiWrapper() {
 }
 
 bool WmiWrapper::Initialize() {
+    Poco::Logger& logger = Poco::Logger::get("WmiWrapper");
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hr)) {
-        std::cout << "Failed to initialize COM library. Error code = 0x"
-            << std::hex << hr << std::endl;
+        logger.error("Failed to initialize COM library. Error code = 0x%lx", hr);
         return false;
     }
 
@@ -36,8 +36,7 @@ bool WmiWrapper::Initialize() {
     );
 
     if (FAILED(hr)) {
-        std::cout << "Failed to initialize security. Error code = 0x"
-            << std::hex << hr << std::endl;
+        logger.error("Failed to initialize security. Error code = 0x%lx", hr);
         CoUninitialize();
         return false;
     }
@@ -49,8 +48,7 @@ bool WmiWrapper::Initialize() {
         IID_IWbemLocator, (LPVOID*)&pLocator);
 
     if (FAILED(hr)) {
-        std::cout << "Failed to create IWbemLocator object. Err code = 0x"
-            << std::hex << hr << std::endl;
+        logger.error("Failed to create IWbemLocator object. Error code = 0x%lx", hr);
         CoUninitialize();
         return false;
     }
@@ -66,21 +64,22 @@ bool WmiWrapper::Initialize() {
         &pServices);
 
     if (FAILED(hr)) {
-        std::cout << "Could not connect to WMI namespace. Error code = 0x"
-            << std::hex << hr << std::endl;
+        logger.error("Could not connect to WMI namespace. Error code = 0x%lx", hr);
         pLocator->Release();
         CoUninitialize();
         return false;
     }
 
-    std::cout << "Initialized WMI connection successfully." << std::endl;
+    logger.information("Initialized WMI connection successfully.");
     initialized = true;
     return true;
 }
 
 void WmiWrapper::GetSystemInfo(SystemInfo& si) {
+    Poco::Logger& logger = Poco::Logger::get("WmiWrapper");
+    
     if (!initialized) {
-        std::cerr << "WMI Helper is not initialized." << std::endl;
+        logger.error("WMI Helper is not initialized.");
         return;
     }
 
@@ -97,8 +96,7 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
         &pEnumerator);
 
     if (FAILED(hrCPU)) {
-        std::cout << "Query for processor information failed. Error code = 0x"
-            << std::hex << hrCPU << std::endl;
+        logger.error("Query for processor information failed. Error code = 0x%lx", hrCPU);
     }
     else {
         IWbemClassObject* pclsObjCPU = nullptr;
@@ -146,13 +144,15 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
             if (SUCCEEDED(hr)) {
                 arch = vtProp.uintVal;
                 VariantClear(&vtProp);
-                if (arch == 0) si.cpu_architecture = "x86";
-                else if (arch == 1) si.cpu_architecture = "MIPS";
-                else if (arch == 2) si.cpu_architecture = "Alpha";
-                else if (arch == 3) si.cpu_architecture = "PowerPC";
-                else if (arch == 6) si.cpu_architecture = "ia64";
-                else if (arch == 9) si.cpu_architecture = "x64";
-                else std::cout << "Error: Unkown OS Architecture.";
+                switch (arch) {
+                case 0: si.cpu_architecture = "x86"; break;
+                case 1: si.cpu_architecture = "MIPS"; break;
+                case 2: si.cpu_architecture = "Alpha"; break;
+                case 3: si.cpu_architecture = "PowerPC"; break;
+                case 6: si.cpu_architecture = "ia64"; break;
+                case 9: si.cpu_architecture = "x64"; break;
+                default: si.cpu_architecture = "Unkown"; break;
+                }
             }
 
             pclsObjCPU->Release();
@@ -174,8 +174,7 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
         &pEnumeratorOS);
 
     if (FAILED(hrOS)) {
-        std::cout << "Query for operating system information failed. Error code = 0x"
-            << std::hex << hrOS << std::endl;
+        logger.error("Query for operating system information failed. Error code = 0x%lx", hrOS);
     }
     else {
         IWbemClassObject* pclsObjOS = nullptr;
@@ -212,10 +211,12 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
             if (SUCCEEDED(hr)) {
                 pType = vtProp.uintVal;
                 VariantClear(&vtProp);
-                if (pType == 1) si.os_type = "Work Station";
-                else if (pType == 2) si.os_type = "Domain Controller";
-                else if (pType == 3) si.os_type = "Server";
-                else std::cout << "Error: Unkown Product Type.";
+                switch (pType) {
+                case 1: si.os_type = "Work Station"; break;
+                case 2: si.os_type = "Domain Controller"; break;
+                case 3: si.os_type = "Server"; break;
+                default: si.os_type = "Unkown"; break;
+                }
             }
 
             pclsObjOS->Release();
@@ -237,8 +238,7 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
         &pEnumeratorMemory);
 
     if (FAILED(hrMemory)) {
-        std::cout << "Query for physical memory information failed. Error code = 0x"
-            << std::hex << hrMemory << std::endl;
+        logger.error("Query for physical memory information failed. Error code = 0x%lx", hrMemory);
     }
     else {
         IWbemClassObject* pclsObjMemory = nullptr;
@@ -280,8 +280,7 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
         &pEnumeratorCS);
 
     if (FAILED(hrCS)) {
-        std::cout << "Query for computer system failed. Error code = 0x"
-            << std::hex << hrCS << std::endl;
+        logger.error("Query for computer system failed. Error code = 0x%lx", hrCS);
     }
     else {
         IWbemClassObject* pclsObjeCS = nullptr;

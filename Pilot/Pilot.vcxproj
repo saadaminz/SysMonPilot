@@ -103,12 +103,19 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
+		<MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+		<AdditionalIncludeDirectories>C:\OpenSSL\include;.\..\dependencies\poco\Foundation\include\;.\..\dependencies\poco\Crypto\include\;.\..\dependencies\poco\NetSSL_OpenSSL\include\;.\..\dependencies\poco\JSON\include\;.\..\dependencies\poco\Net\include\;.\..\dependencies\poco\Zip\include\;.\..\dependencies\poco\XML\include\;.\..\dependencies\poco\Util\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+		<LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+		<AdditionalDependencies>Iphlpapi.lib;libcrypto$(PlatformArchitecture)MTd.lib;libssl$(PlatformArchitecture)MTd.lib;Crypt32.lib;Ws2_32.lib;Winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		<AdditionalLibraryDirectories>C:\Program Files (x86)\OpenSSL-Win32\lib\VC\static;.\..\dependencies\poco\lib</AdditionalLibraryDirectories>
+		<IgnoreSpecificDefaultLibraries>libcrypto.lib;libssl.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -117,7 +124,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+		<MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+		<AdditionalIncludeDirectories>C:\OpenSSL\include;.\..\dependencies\poco\Foundation\include\;.\..\dependencies\poco\Crypto\include\;.\..\dependencies\poco\NetSSL_OpenSSL\include\;.\..\dependencies\poco\JSON\include\;.\..\dependencies\poco\Net\include\;.\..\dependencies\poco\Zip\include\;.\..\dependencies\poco\XML\include\;.\..\dependencies\poco\Util\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		<RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+		<LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -125,18 +136,28 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+		<AdditionalDependencies>Iphlpapi.lib;libcrypto$(PlatformArchitecture)MTd.lib;libssl$(PlatformArchitecture)MTd.lib;Crypt32.lib;Ws2_32.lib;Winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		<AdditionalLibraryDirectories>C:\Program Files (x86)\OpenSSL-Win32\lib\VC\static;.\..\dependencies\poco\lib</AdditionalLibraryDirectories>
+		<IgnoreSpecificDefaultLibraries>libcrypto.lib;libssl.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
+		<MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+		<AdditionalIncludeDirectories>C:\OpenSSL\include;.\..\dependencies\poco\Foundation\include\;.\..\dependencies\poco\Crypto\include\;.\..\dependencies\poco\NetSSL_OpenSSL\include\;.\..\dependencies\poco\JSON\include\;.\..\dependencies\poco\Net\include\;.\..\dependencies\poco\Zip\include\;.\..\dependencies\poco\XML\include\;.\..\dependencies\poco\Util\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		<RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+		<LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+		<AdditionalDependencies>Iphlpapi.lib;libcrypto$(PlatformArchitecture)MT.lib;libssl$(PlatformArchitecture)MT.lib;Crypt32.lib;Ws2_32.lib;Winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		<AdditionalLibraryDirectories>C:\Program Files\OpenSSL-Win64\lib\VC\static;.\..\dependencies\poco\lib64</AdditionalLibraryDirectories>
+		<IgnoreSpecificDefaultLibraries>libcrypto.lib;libssl.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,7 +166,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+		<MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+		<AdditionalIncludeDirectories>C:\OpenSSL\include;.\..\dependencies\poco\Foundation\include\;.\..\dependencies\poco\Crypto\include\;.\..\dependencies\poco\NetSSL_OpenSSL\include\;.\..\dependencies\poco\JSON\include\;.\..\dependencies\poco\Net\include\;.\..\dependencies\poco\Zip\include\;.\..\dependencies\poco\XML\include\;.\..\dependencies\poco\Util\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+		<RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+		<LanguageStandard>stdcpp17</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -153,6 +178,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+		<AdditionalDependencies>Iphlpapi.lib;libcrypto$(PlatformArchitecture)MT.lib;libssl$(PlatformArchitecture)MT.lib;Crypt32.lib;Ws2_32.lib;Winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+		<AdditionalLibraryDirectories>C:\Program Files\OpenSSL-Win64\lib\VC\static;.\..\dependencies\poco\lib64</AdditionalLibraryDirectories>
+		<IgnoreSpecificDefaultLibraries>libcrypto.lib;libssl.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
 

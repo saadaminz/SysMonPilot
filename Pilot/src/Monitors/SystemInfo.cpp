@@ -1,30 +1,16 @@
-#include <iostream>
+#include <Poco/Logger.h>
 
 #include "SystemInfo.h"
 
 void SystemInfo::PrintInfo() const {
+	Poco::Logger& logger = Poco::Logger::get("SystemInfo");
 
-	std::cout << "\nProcessorInfo:" << std::endl;
-	std::cout << "CPU Name: " << cpu_name << std::endl;
-	std::cout << "CPU Cores: " << cpu_cores << std::endl;
-	std::cout << "CPU Threads: " << cpu_threads << std::endl;
-	std::cout << "CPU Max Clock: " << cpu_max_clock << std::endl;
-	std::cout << "CPU Architecture: " << cpu_architecture << std::endl;
+	logger.information("CPU Info - Name: %s, Cores: %u, Threads: %u, MaxClock: %u, Architecture: %s",
+		cpu_name, cpu_cores, cpu_threads, cpu_max_clock, cpu_architecture);
 
-	std::cout << "\nOperatingSystemInfo:" << std::endl;
-	std::cout << "OS Name: " << os_name << std::endl;
-	std::cout << "OS Architecture: " << os_architecture << std::endl;
-	std::cout << "OS Version: " << os_version << std::endl;
-	std::cout << "OS Type: " << os_type << std::endl;
+	logger.information("OS Info - Name: %s, Architecture: %s, Version %s, Type: %s",
+		os_name, os_architecture, os_version, os_type);
 
-	std::cout << "\nComputerSystemInfo:" << std::endl;
-	std::cout << "System MemoryMB: " << memory_mb << std::endl;
-	std::cout << "System User: " << sys_user << std::endl;
-	std::cout << "System Hostname: " << sys_hostname << std::endl;
-	std::cout << "System Domain: " << sys_domain << std::endl;
-	std::cout << "System Manufacturer: " << sys_manufacturer << std::endl;
-	std::cout << "System Model: " << sys_model << std::endl;
-	std::cout << "System Owner: " << sys_owner << std::endl;
-	std::cout << "System Family: " << sys_family << std::endl;
-
+	logger.information("System Info - MemoryMB: %lu, User: %s, Hostname: %s, Domain: %s, Manufacturer: %s, Model: %s, Owner: %s, Family: %s",
+		memory_mb, sys_user, sys_hostname, sys_domain, sys_manufacturer, sys_model, sys_owner, sys_family);
 }
