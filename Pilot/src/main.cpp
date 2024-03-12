@@ -10,6 +10,7 @@
 
 #include "Helpers/WmiWrapper.h"
 #include "Monitors/SystemInfo.h"
+#include "Monitors/ProcessInfo.h"
 
 void InitializeLogger() {
     
@@ -52,10 +53,17 @@ void InitializeLogger() {
 int main() {
     InitializeLogger();
     SystemInfo si;
+    ProcessInfo::Vector piVectorList;
     WmiWrapper wmi;
-    if (wmi.Initialize()) {
+    if (wmi.InitializeWMI()) {
+        
         wmi.GetSystemInfo(si);
+        wmi.GetProcessInfo(piVectorList);
+        
         si.PrintInfo();
+        for (const auto& pi : piVectorList) {
+            pi.PrintInfo();
+        }
     }
     return 0;
 }

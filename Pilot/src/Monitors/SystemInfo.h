@@ -6,6 +6,7 @@ class SystemInfo
 public:
 	float disk_space;
 	float disk_space_free;
+	double cpu_usage;
 	unsigned long ipv4_address;
 	unsigned long memory_mb;
 
@@ -28,7 +29,7 @@ public:
 	std::string sys_owner;
 	std::string sys_family;
 
-	SystemInfo() : memory_mb(0), disk_space(0.0), disk_space_free(0.0), ipv4_address(0),
+	SystemInfo() : memory_mb(0), disk_space(0), disk_space_free(0), ipv4_address(0), cpu_usage(0),
 		cpu_cores(0), cpu_threads(0), cpu_max_clock(0), cpu_name(""), os_name(""), cpu_architecture(""), os_architecture(""), os_version(""), os_type(""),
 		sys_user(""), sys_hostname(""), sys_domain(""), sys_manufacturer(""), sys_model(""), sys_owner(""), sys_family("")
 	{}
