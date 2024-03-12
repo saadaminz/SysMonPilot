@@ -5,6 +5,7 @@
 #include <Wbemidl.h>
 
 #include "../Monitors/SystemInfo.h"
+#include "../Monitors/ProcessInfo.h"
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -13,8 +14,10 @@ public:
     WmiWrapper();
     ~WmiWrapper();
 
-    bool Initialize();
+    bool InitializeWMI();
     void GetSystemInfo(SystemInfo& si);
+    void GetSystemCounters();
+    void GetProcessInfo(ProcessInfo::Vector& piVectorList);
 
 private:
     IWbemLocator* pLocator;

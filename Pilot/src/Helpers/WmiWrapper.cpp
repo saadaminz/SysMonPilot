@@ -2,6 +2,7 @@
 
 #include "WmiWrapper.h"
 #include "../Monitors/SystemInfo.h"
+#include "../Monitors/ProcessInfo.h"
 
 WmiWrapper::WmiWrapper() : pLocator(nullptr), pServices(nullptr), initialized(false) {}
 
@@ -15,7 +16,7 @@ WmiWrapper::~WmiWrapper() {
     CoUninitialize();
 }
 
-bool WmiWrapper::Initialize() {
+bool WmiWrapper::InitializeWMI() {
     Poco::Logger& logger = Poco::Logger::get("WmiWrapper");
     HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hr)) {
@@ -151,7 +152,7 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
                 case 3: si.cpu_architecture = "PowerPC"; break;
                 case 6: si.cpu_architecture = "ia64"; break;
                 case 9: si.cpu_architecture = "x64"; break;
-                default: si.cpu_architecture = "Unkown"; break;
+                default: si.cpu_architecture = "Unknown"; break;
                 }
             }
 
@@ -215,7 +216,7 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
                 case 1: si.os_type = "Work Station"; break;
                 case 2: si.os_type = "Domain Controller"; break;
                 case 3: si.os_type = "Server"; break;
-                default: si.os_type = "Unkown"; break;
+                default: si.os_type = "Unknown"; break;
                 }
             }
 
@@ -283,11 +284,11 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
         logger.error("Query for computer system failed. Error code = 0x%lx", hrCS);
     }
     else {
-        IWbemClassObject* pclsObjeCS = nullptr;
+        IWbemClassObject* pclsObjCS = nullptr;
         ULONG uReturnCS = 0;
 
         while (pEnumeratorCS) {
-            HRESULT hr = pEnumeratorCS->Next(WBEM_INFINITE, 1, &pclsObjeCS, &uReturnCS);
+            HRESULT hr = pEnumeratorCS->Next(WBEM_INFINITE, 1, &pclsObjCS, &uReturnCS);
 
             if (0 == uReturnCS) {
                 break;
@@ -295,50 +296,163 @@ void WmiWrapper::GetSystemInfo(SystemInfo& si) {
 
             VARIANT vtProp;
 
-            hr = pclsObjeCS->Get(L"Caption", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"Caption", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_user = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            hr = pclsObjeCS->Get(L"DNSHostName", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"DNSHostName", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_hostname = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            hr = pclsObjeCS->Get(L"Domain", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"Domain", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_domain = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            hr = pclsObjeCS->Get(L"Manufacturer", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"Manufacturer", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_manufacturer = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            hr = pclsObjeCS->Get(L"Model", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"Model", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_model = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            hr = pclsObjeCS->Get(L"PrimaryOwnerName", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"PrimaryOwnerName", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_owner = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            hr = pclsObjeCS->Get(L"SystemFamily", 0, &vtProp, 0, 0);
+            hr = pclsObjCS->Get(L"SystemFamily", 0, &vtProp, 0, 0);
             if (SUCCEEDED(hr)) {
                 si.sys_family = _bstr_t(vtProp.bstrVal);
                 VariantClear(&vtProp);
             }
 
-            pclsObjeCS->Release();
+            pclsObjCS->Release();
         }
+
         pEnumeratorCS->Release();
+    }
+}
+
+void WmiWrapper::GetSystemCounters() {
+    
+    /******************************************************************************************************************************************************
+        Win32_PerfFormattedData_PerfOS_Processor - PercentProcessorTime
+    *******************************************************************************************************************************************************/
+    
+    // Todo:
+    // CPU Total Usage
+    // CPU Total Freq Usage
+    // CPU Usage per Process
+    // Memory Total Usage
+}
+
+void WmiWrapper::GetProcessInfo(ProcessInfo::Vector& piVectorList) {
+    Poco::Logger& logger = Poco::Logger::get("WmiWrapper");
+
+    if (!initialized) {
+        logger.error("WMI Helper is not initialized.");
+        return;
+    }
+
+    /******************************************************************************************************************************************************
+        Win32_Process - Name | CSName | Description | HandleCount | ParentProcessId | ProcessId | SessionId | ThreadCount | WorkingSetSize
+    *******************************************************************************************************************************************************/
+
+    IEnumWbemClassObject* pEnumeratorPI = nullptr;
+    HRESULT hrPI = pServices->ExecQuery(
+        bstr_t("WQL"),
+        bstr_t("SELECT Name, CSName, Description, HandleCount, ParentProcessId, ProcessId, SessionId, ThreadCount, WorkingSetSize FROM Win32_Process"),
+        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+        nullptr,
+        &pEnumeratorPI);
+    
+    if (FAILED(hrPI)) {
+        logger.error("Query for process failed. Error code = 0x%lx", hrPI);
+    }
+    else {
+        IWbemClassObject* pclsObjPI = nullptr;
+        ULONG uReturnPI = 0;
+
+        while (pEnumeratorPI) {
+            HRESULT hr = pEnumeratorPI->Next(WBEM_INFINITE, 1, &pclsObjPI, &uReturnPI);
+
+            if (0 == uReturnPI) {
+                break;
+            }
+
+            ProcessInfo pi;
+            VARIANT vtProp;
+
+            hr = pclsObjPI->Get(L"Name", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.name = _bstr_t(vtProp.bstrVal);
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"CSName", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.owner = _bstr_t(vtProp.bstrVal);
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"Description", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.description = _bstr_t(vtProp.bstrVal);
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"HandleCount", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.handles = vtProp.uintVal;
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"ParentProcessId", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.ppid = vtProp.uintVal;
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"ProcessId", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.pid = vtProp.uintVal;
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"SessionId", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.sid = vtProp.uintVal;
+                VariantClear(&vtProp);
+            }
+
+            hr = pclsObjPI->Get(L"ThreadCount", 0, &vtProp, 0, 0);
+            if (SUCCEEDED(hr)) {
+                pi.threads = vtProp.uintVal;
+                VariantClear(&vtProp);
+            }
+
+            //hr = pclsObjPI->Get(L"WorkingSetSize", 0, &vtProp, 0, 0);
+            //if (SUCCEEDED(hr)) {
+            //    pi.memoryMb = vtProp.ullVal / 1024 / 1024;
+            //    VariantClear(&vtProp);
+            //}
+
+            piVectorList.push_back(pi);
+            pclsObjPI->Release();
+        }
+
+        pEnumeratorPI->Release();
     }
 }
